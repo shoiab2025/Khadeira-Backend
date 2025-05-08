@@ -22,7 +22,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
 
-const PORT = 5000
+const PORT = process.env.PORT
 
 // app.use('/users', UserRoutes)
 // app.use('/materials', authenticate, MaterialRoutes)
