@@ -13,12 +13,6 @@ export const getAllCourses = async (req, res) => {
         path: 'materials',
         model: 'Material'
       }
-    }).populate({
-      path: 'joinRequests',
-      populate: {
-        path: 'user',
-        model: 'User'
-      }
     });
     res.status(200).json(courses);
   } catch (error) {

@@ -22,7 +22,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
 
-const PORT = process.env.PORT || 5000
+const PORT = 5000
 
 // app.use('/users', UserRoutes)
 // app.use('/materials', authenticate, MaterialRoutes)
@@ -58,7 +58,7 @@ app.get('*', (req, res) => {
 // });
 
 
-app.listen(PORT,() => {
+app.listen(PORT,'0.0.0.0',() => {
   console.log(chalk.magenta(`http://localhost:${PORT}`))
   mangoDb()
 })
