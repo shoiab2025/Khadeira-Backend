@@ -8,7 +8,7 @@ const authenticate = async (req, res, next) => {
         return res.status(401).json({ message: 'Unauthorized' })
     }
     
-    const decoded = await jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = await jwt.verify(token, `13dcwercvr3tvwrbtyt6yb4`)
 
     if(!decoded){
         return res.status(401).json({ message: 'Invalid Token' })
