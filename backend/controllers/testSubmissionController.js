@@ -6,6 +6,12 @@ export const submitTest = async (req, res) => {
   try {
     const { user, test, subject, lesson, score, correct_answers, wrong_answers, skipped_questions, average_score, submitted_at, total_questions, detailed_answers } = req.body;
 
+    // Check if the user has already submitted the test
+    const existingSubmission = await TestSubmission.findOne({ user, test });
+    if (existingSubmission) {
+      return res.status(400).json({ success: false, message: "You have already submitted this test." });
+    }
+
     const submission = await TestSubmission.create({
       user,
       test,
