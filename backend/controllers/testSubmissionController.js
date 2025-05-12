@@ -68,7 +68,7 @@ export const getSubmissionById = async (req, res) => {
 
 export const getSubmissionsByTestId = async (req, res) => {
   try {
-    const submissions = await TestSubmission.find({ test: req.params.testId }).populate('user test  lessonsubject');
+    const submissions = await TestSubmission.find({ test: req.params.testId }).populate('user testgit st');
     if (!submissions || submissions.length === 0) {
       return res.status(404).json({ success: false, message: "No submissions found for this test" });
     }
