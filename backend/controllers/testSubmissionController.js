@@ -8,6 +8,7 @@ export const submitTest = async (req, res) => {
 
     // Check if the user has already submitted the test
     const existingSubmission = await TestSubmission.findOne({ user, test });
+    
     if (existingSubmission) {
       return res.status(400).json({ success: false, message: "You have already submitted this test." });
     }
@@ -45,7 +46,7 @@ export const submitTest = async (req, res) => {
 // (Optional) Get all submissions
 export const getAllSubmissions = async (req, res) => {
   try {
-    const submissions = await TestSubmission.find().populate('user test subject lesson');
+    const submissions = await TestSubmission.find().populate('user test');
     res.status(200).json({ success: true, data: submissions });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -55,7 +56,7 @@ export const getAllSubmissions = async (req, res) => {
 // (Optional) Get single submission by ID
 export const getSubmissionById = async (req, res) => {
   try {
-    const submission = await TestSubmission.findById(req.params.id).populate('user test subject lesson');
+    const submission = await TestSubmission.findById(req.params.id).populate('user test');
     if (!submission) {
       return res.status(404).json({ success: false, message: "Submission not found" });
     }
@@ -67,7 +68,7 @@ export const getSubmissionById = async (req, res) => {
 
 export const getSubmissionsByTestId = async (req, res) => {
   try {
-    const submissions = await TestSubmission.find({ test: req.params.testId }).populate('user test subject lesson');
+    const submissions = await TestSubmission.find({ test: req.params.testId }).populate('user test  lessonsubject');
     if (!submissions || submissions.length === 0) {
       return res.status(404).json({ success: false, message: "No submissions found for this test" });
     }

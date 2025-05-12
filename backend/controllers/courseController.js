@@ -333,3 +333,26 @@ export const handleJoinRequest = async (req, res) => {
     res.status(500).json({ message: 'Error handling request', error });
   }
 };
+
+export const getCoursesByCreator = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const courses = await Course.find({ created_by: userId }).populate({
+      path: 'subjects',
+      populate: {
+        path: 'materials',
+        model: 'Material'
+      }
+    });
+
+    if (!courses || courses.length === 0) {
+      return res.status(404).json({ message: 'No courses found for this user' });
+    }
+
+    res.status(200).json(courses);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching courses by creator', details: error.message });
+  }
+};
