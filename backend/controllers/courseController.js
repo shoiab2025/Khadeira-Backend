@@ -24,7 +24,7 @@ export const getAllCourses = async (req, res) => {
 // Create a course
 export const createCourse = async (req, res) => {
   try {
-    console.log(req.body );
+    console.log(req.body);
     const newCourse = new Course(req.body);
     console.log(newCourse);
     await newCourse.save();
@@ -38,16 +38,59 @@ export const createCourse = async (req, res) => {
 // Update a course
 export const updateCourse = async (req, res) => {
   try {
-    const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+
+    // Update basic course fields
+    const updatableFields = ['name', 'description', 'duration', 'status', 'imageUrl', 'course_type', 'join_code'];
+    updatableFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        course[field] = req.body[field];
+      }
+    });
+
+    // Handle subjects update (carefully)
+    if (Array.isArray(req.body.subjects)) {
+      const updatedSubjectIds = [];
+
+      for (const subjectData of req.body.subjects) {
+        if (subjectData._id !== "") {
+          // Update existing subject only if it exists
+          const existingSubject = await Subject.findById(subjectData._id);
+          if (existingSubject) {
+            await Subject.findByIdAndUpdate(subjectData._id, subjectData, { new: true, runValidators: true });
+            updatedSubjectIds.push(subjectData._id);
+          } else {
+            return res.status(400).json({ error: `Subject not found with ID: ${subjectData._id}` });
+          }
+        } else {
+          // Only allow new subject creation if a specific flag is passed
+          if (subjectData.allowCreate) {
+            const newSubject = new Subject({
+              ...subjectData,
+              course_id: course._id
+            });
+            await newSubject.save();
+            updatedSubjectIds.push(newSubject._id);
+          } else {
+            return res.status(400).json({ error: 'Subject _id is missing and allowCreate flag is not set' });
+          }
+        }
+      }
+
+      // Replace course.subjects with updated list
+      course.subjects = updatedSubjectIds;
     }
-    res.status(200).json({ message: 'Course updated successfully', course });
+
+    await course.save();
+
+    res.status(200).json({ message: 'Course and subjects updated successfully', course });
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: 'Error updating course', details: error.message });
   }
 };
+
 
 // Delete a course
 export const deleteCourse = async (req, res) => {
@@ -188,7 +231,7 @@ export const updateCourseProgress = async (req, res) => {
     }
 
     const userProgress = course.progress.find(p => p.user.toString() === req.user.id);
-    
+
     // If user progress doesn't exist, create it
     if (!userProgress) {
       const newProgress = {
@@ -268,7 +311,7 @@ export const requestCourseJoin = async (req, res) => {
     }
 
     const course = await Course.findOne({ join_code: joinCode });
-      if (!course) {
+    if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
 
